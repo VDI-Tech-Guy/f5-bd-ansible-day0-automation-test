@@ -140,7 +140,11 @@
             "class": "SelfIp",
             "address": "{{self_external_sn.split(".")[0]}}.{{self_external_sn.split(".")[1]}}.{{self_external_sn.split(".")[2]}}.{{ ansible_host.split(".")[3] }}/{{ self_external_sn.split("/")[1] }}",
             "vlan": "external",
-            "allowService": ["tcp:4353", "tcp:1026", "tcp:6699"]",
+            "allowService": [
+                "tcp:4353", 
+                "tcp:1026", 
+                "tcp:6699"
+            ],
             "trafficGroup": "traffic-group-local-only"
         },
         "external-floating": {
