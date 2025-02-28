@@ -140,7 +140,7 @@
             "class": "SelfIp",
             "address": "{{self_external_sn.split(".")[0]}}.{{self_external_sn.split(".")[1]}}.{{self_external_sn.split(".")[2]}}.{{ ansible_host.split(".")[3] }}/{{ self_external_sn.split("/")[1] }}",
             "vlan": "external",
-            "allowService": "default",
+            "allowService": "none",
             "trafficGroup": "traffic-group-local-only"
         },
         "external-floating": {
@@ -150,13 +150,31 @@
             "allowService": "none",
             "trafficGroup": "traffic-group-1"
         },
+        "ha": {
+            "class": "VLAN",
+            "tag": 4092,
+            "mtu": 1500,
+            "interfaces": [
+                {
+                    "name": "1.3",
+                    "tagged": false
+                }
+            ]
+        },
+        "ha-localself": {
+            "class": "SelfIp",
+            "address": "{{self_ha_sn.split(".")[0]}}.{{self_ha_sn.split(".")[1]}}.{{self_ha_sn.split(".")[2]}}.{{ ansible_host.split(".")[3] }}/{{ self_ha_sn.split("/")[1] }}",
+            "vlan": "ha",
+            "allowService": "default",
+            "trafficGroup": "traffic-group-local-only"
+        },
         "configsync": {
             "class": "ConfigSync",
-            "configsyncIp": "/Common/external-localself/address"
+            "configsyncIp": "/Common/ha-localself/address"
         },
         "failoverAddress": {
             "class": "FailoverUnicast",
-            "address": "/Common/external-localself/address"
+            "configsyncIp": "/Common/ha-localself/address"
         },
         "failoverGroup": {
             "class": "DeviceGroup",
