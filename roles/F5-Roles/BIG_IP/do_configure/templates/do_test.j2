@@ -1,6 +1,5 @@
 {
-    "$schema": "https://raw.githubusercontent.com/F5Networks/f5-declarative-onboarding/master/src/schema/1.9.0/base.schema.json",
-    "schemaVersion": "1.9.0",
+    "schemaVersion": "1.39.0",
     "class": "Device",
     "async": true,
     "label": "Onboard BIG-IP into an HA Pair",
@@ -141,9 +140,7 @@
             "class": "SelfIp",
             "address": "{{self_external_sn.split(".")[0]}}.{{self_external_sn.split(".")[1]}}.{{self_external_sn.split(".")[2]}}.{{ ansible_host.split(".")[3] }}/{{ self_external_sn.split("/")[1] }}",
             "vlan": "external",
-            "allowService": [
-                "udp:1026"
-            ],
+            "network": "default",
             "trafficGroup": "traffic-group-local-only"
         },
         "external-floating": {
@@ -170,7 +167,7 @@
             ],
             "owner": "/Common/failoverGroup/members/0",
             "autoSync": true,
-            "saveOnAutoSync": false,
+            "saveOnAutoSync": true,
             "networkFailover": true,
             "fullLoadOnSync": false,
             "asmSync": false
