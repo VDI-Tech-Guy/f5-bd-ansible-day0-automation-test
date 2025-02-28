@@ -1,0 +1,184 @@
+{
+    "schemaVersion": "1.39.0",
+    "class": "Device",
+    "async": true,
+    "label": "Onboard BIG-IP into an HA Pair",
+    "Common": {
+        "class": "Tenant",
+        "mySys": {
+            "class": "System",
+            "hostname": "{{ f5_device_ip }}",
+             "tmshAuditLog": "true",
+             "guiSecurityBanner": "true",
+             "guiSecurityBannerText": "You are authorized to use this System for approved business purposes only."
+        },
+        "myLicense": {
+            "class": "License",
+            "licenseType": "licensePool",
+            "bigIqHost": "{{ BIQ_IP }}",
+            "bigIqUsername": "{{ BIQ_User }}",
+            "bigIqPassword": "{{ BIQ_Pass }}",
+            "licensePool": "{{ BIQ_PoolName }}",
+            "reachable": true,
+            "bigIpUsername": "{{ f5_user }}",
+            "bigIpPassword": "{{ f5_pass }}",
+            "overwrite": true
+        },
+        "deviceCertificate": {
+            "class": "DeviceCertificate",
+            "certificate": {
+                # This has extra double quote
+                "base64": "{{ device_cert_base64 }}"
+            },
+            "privateKey": {
+                "base64": "{{ device_key_base64 }}"
+            },
+            "updateTrustCerts": true
+        },
+        "myProvisioning": {
+            {%  for item in f5_modules %}
+            "{{ item |lower }}": "nominal",
+            {% endfor %}
+            "class": "Provision"
+        },
+        "myDns": {
+            "class": "DNS",
+            "nameServers": [
+              {%  for item in dns_name_servers %}
+                "{{ item |lower }}"
+                 {{ ", " if not loop.last else ""}}
+              {% endfor %}
+            ],
+            "search": [
+              {%  for item in dns_name_search %}
+                "{{ item |lower }}"
+                 {{ ", " if not loop.last else ""}}
+              {% endfor %}
+            ]
+        },
+        "myNtp": {
+            "class": "NTP",
+            "servers": [
+              {%  for item in ntp_servers %}
+                "{{ item |lower }}"
+                 {{ ", " if not loop.last else ""}}
+              {% endfor %}
+            ],
+            "timezone": "UTC"
+        },
+        "httpdSettings": {
+            "class": "HTTPD",
+            "allow": [
+                "all"
+            ],
+            "authPamIdleTimeout": 86400,
+            "maxClients": 10,
+            "sslCiphersuite": [
+                "ECDHE-RSA-AES128-GCM-SHA256",
+                "ECDHE-RSA-AES256-GCM-SHA384",
+                "ECDHE-ECDSA-AES128-GCM-SHA256",
+                "ECDHE-ECDSA-AES256-GCM-SHA384"
+            ],
+            "sslProtocol": "all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1"
+        },
+        "sshSettings": {
+            "class": "SSHD",
+            "allow": [
+                "all"
+            ],
+            "banner": "You are authorized to use this System for approved business purposes only.",
+            "inactivityTimeout": 123,
+            "ciphers": [
+                "aes128-cbc",
+                "aes192-ctr",
+                "aes256-ctr",
+                "arcfour128",
+                "aes128-ctr",
+                "arcfour256",
+                "arcfour"
+            ],
+            "loginGraceTime": 100,
+            "MACS": [
+                "hmac-sha2-256"
+            ],
+            "kexAlgorithms": [
+                "ecdh-sha2-nistp256",
+                "ecdh-sha2-nistp384",
+                "ecdh-sha2-nistp521"
+            ],
+            "maxAuthTries": 10,
+            "maxStartups": "5",
+            "protocol": 1
+        },
+        "myPasswordPolicy": {
+            "class": "PasswordPolicy",
+            "expirationWarningDays": 1,
+            "minLength": 15,
+            "minDurationDays": 14,
+            "maxDurationDays": 60,
+            "lockoutDurationSeconds": 120,
+            "maxLoginFailures": 10,
+            "passwordMemory": 8,
+            "policyEnforcementEnabled": true,
+            "requiredUppercase": 2,
+            "requiredLowercase": 3,
+            "requiredNumeric": 4,
+            "requiredSpecial": 5
+        },
+        "external": {
+            "class": "VLAN",
+            "tag": 4093,
+            "mtu": 1500,
+            "interfaces": [
+                {
+                    "name": "1.2",
+                    "tagged": false
+                }
+            ]
+        },
+        "external-localself": {
+            "class": "SelfIp",
+            "address": "{{self_external_sn.split(".")[0]}}.{{self_external_sn.split(".")[1]}}.{{self_external_sn.split(".")[2]}}.{{ ansible_host.split(".")[3] }}/{{ self_external_sn.split("/")[1] }}",
+            "vlan": "external",
+            "allowService": "none",
+            "trafficGroup": "traffic-group-local-only"
+        },
+        "external-floating": {
+            "class": "SelfIp",
+            "address": "{{self_external_sn.split(".")[0]}}.{{self_external_sn.split(".")[1]}}.{{self_external_sn.split(".")[2]}}.{{ ansible_host.split(".")[3][:-1] }}{{ float_num }}/{{ self_external_sn.split("/")[1] }}",
+            "vlan": "external",
+            "allowService": "none",
+            "trafficGroup": "traffic-group-1"
+        },
+        "configsync": {
+            "class": "ConfigSync",
+            "configsyncIp": "/Common/external-localself/address"
+        },
+        "failoverAddress": {
+            "class": "FailoverUnicast",
+            "address": "/Common/external-localself/address"
+        },
+        "failoverGroup": {
+            "class": "DeviceGroup",
+            "type": "sync-failover",
+            "members": [
+                "{{ ansible_host[:-1] }}1",
+                "{{ ansible_host[:-1] }}2"
+            ],
+            "owner": "/Common/failoverGroup/members/0",
+            "autoSync": true,
+            "saveOnAutoSync": true,
+            "networkFailover": true,
+            "fullLoadOnSync": false,
+            "asmSync": false
+        },
+        "trust": {
+            "class": "DeviceTrust",
+            "localUsername": "{{ f5_user }}",
+            "localPassword": "{{ f5_pass }}",
+            "remoteHost": "/Common/failoverGroup/members/0",
+            "remoteUsername": "{{ f5_user }}",
+            "remotePassword": "{{ f5_pass }}"
+        }
+    }
+}
