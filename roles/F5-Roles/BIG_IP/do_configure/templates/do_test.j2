@@ -24,17 +24,6 @@
             "bigIpPassword": "{{ f5_pass }}",
             "overwrite": true
         },
-        "deviceCertificate": {
-            "class": "DeviceCertificate",
-            "certificate": {
-                # This has extra double quote
-                "base64": "{{ device_cert_base64 }}"
-            },
-            "privateKey": {
-                "base64": "{{ device_key_base64 }}"
-            },
-            "updateTrustCerts": true
-        },
         "myProvisioning": {
             {%  for item in f5_modules %}
             "{{ item |lower }}": "nominal",
@@ -143,7 +132,7 @@
             "allowService": "none",
             "trafficGroup": "traffic-group-local-only"
         },
-        "external-floating": {
+        "external-self": {
             "class": "SelfIp",
             "address": "{{self_external_sn.split(".")[0]}}.{{self_external_sn.split(".")[1]}}.{{self_external_sn.split(".")[2]}}.{{ ansible_host.split(".")[3][:-1] }}{{ float_num }}/{{ self_external_sn.split("/")[1] }}",
             "vlan": "external",
@@ -167,6 +156,23 @@
             "vlan": "ha",
             "allowService": "default",
             "trafficGroup": "traffic-group-local-only"
+        },
+        "default": {
+            "class": "Route",
+            "gw": "{{ route_gateway }}",
+            "network": "default",
+            "mtu": 1500
+        },
+        "deviceCertificate": {
+            "class": "DeviceCertificate",
+            "certificate": {
+                # This has extra double quote
+                "base64": "{{ device_cert_base64 }}"
+            },
+            "privateKey": {
+                "base64": "{{ device_key_base64 }}"
+            },
+            "updateTrustCerts": true
         },
         "configsync": {
             "class": "ConfigSync",
