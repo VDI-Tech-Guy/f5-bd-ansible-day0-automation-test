@@ -12,49 +12,6 @@
              "guiSecurityBanner": "true",
              "guiSecurityBannerText": "You are authorized to use this System for approved business purposes only."
         },
-        "myLicense": {
-            "class": "License",
-            "licenseType": "licensePool",
-            "bigIqHost": "{{ BIQ_IP }}",
-            "bigIqUsername": "{{ BIQ_User }}",
-            "bigIqPassword": "{{ BIQ_Pass }}",
-            "licensePool": "{{ BIQ_PoolName }}",
-            "reachable": true,
-            "bigIpUsername": "{{ f5_user }}",
-            "bigIpPassword": "{{ f5_pass }}",
-            "overwrite": true
-        },
-        "myProvisioning": {
-            {%  for item in f5_modules %}
-            "{{ item |lower }}": "nominal",
-            {% endfor %}
-            "class": "Provision"
-        },
-        "myDns": {
-            "class": "DNS",
-            "nameServers": [
-              {%  for item in dns_name_servers %}
-                "{{ item |lower }}"
-                 {{ ", " if not loop.last else ""}}
-              {% endfor %}
-            ],
-            "search": [
-              {%  for item in dns_name_search %}
-                "{{ item |lower }}"
-                 {{ ", " if not loop.last else ""}}
-              {% endfor %}
-            ]
-        },
-        "myNtp": {
-            "class": "NTP",
-            "servers": [
-              {%  for item in ntp_servers %}
-                "{{ item |lower }}"
-                 {{ ", " if not loop.last else ""}}
-              {% endfor %}
-            ],
-            "timezone": "UTC"
-        },
         "httpdSettings": {
             "class": "HTTPD",
             "allow": [
@@ -98,6 +55,61 @@
             "maxAuthTries": 10,
             "maxStartups": "5",
             "protocol": 1
+        },
+        "myLicense": {
+            "class": "License",
+            "licenseType": "licensePool",
+            "bigIqHost": "{{ BIQ_IP }}",
+            "bigIqUsername": "{{ BIQ_User }}",
+            "bigIqPassword": "{{ BIQ_Pass }}",
+            "licensePool": "{{ BIQ_PoolName }}",
+            "reachable": true,
+            "bigIpUsername": "{{ f5_user }}",
+            "bigIpPassword": "{{ f5_pass }}",
+            "overwrite": true
+        },
+        "myDns": {
+            "class": "DNS",
+            "nameServers": [
+              {%  for item in dns_name_servers %}
+                "{{ item |lower }}"
+                 {{ ", " if not loop.last else ""}}
+              {% endfor %}
+            ],
+            "search": [
+              {%  for item in dns_name_search %}
+                "{{ item |lower }}"
+                 {{ ", " if not loop.last else ""}}
+              {% endfor %}
+            ]
+        },
+        "myNtp": {
+            "class": "NTP",
+            "servers": [
+              {%  for item in ntp_servers %}
+                "{{ item |lower }}"
+                 {{ ", " if not loop.last else ""}}
+              {% endfor %}
+            ],
+            "timezone": "UTC"
+        },
+        "root": {
+            "class": "User",
+            "userType": "root",
+            "oldPassword": "{{ f5_pass }}",
+            "newPassword": "{{ f5_pass }}"
+        },
+        "admin": {
+            "class": "User",
+            "userType": "regular",
+            "password": "{{ f5_pass }}",
+            "shell": "bash"
+        },
+        "myProvisioning": {
+            {%  for item in f5_modules %}
+            "{{ item |lower }}": "nominal",
+            {% endfor %}
+            "class": "Provision"
         },
         "myPasswordPolicy": {
             "class": "PasswordPolicy",
