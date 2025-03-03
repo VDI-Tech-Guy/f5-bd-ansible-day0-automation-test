@@ -5,57 +5,7 @@
     "label": "Onboard BIG-IP into an HA Pair",
     "Common": {
         "class": "Tenant",
-        "mySys": {
-            "class": "System",
-            "hostname": "{{ ansible_host }}",
-             "tmshAuditLog": "true",
-             "guiSecurityBanner": "true",
-             "guiSecurityBannerText": "You are authorized to use this System for approved business purposes only."
-        },
-        "httpdSettings": {
-            "class": "HTTPD",
-            "allow": [
-                "all"
-            ],
-            "authPamIdleTimeout": 86400,
-            "maxClients": 10,
-            "sslCiphersuite": [
-                "ECDHE-RSA-AES128-GCM-SHA256",
-                "ECDHE-RSA-AES256-GCM-SHA384",
-                "ECDHE-ECDSA-AES128-GCM-SHA256",
-                "ECDHE-ECDSA-AES256-GCM-SHA384"
-            ],
-            "sslProtocol": "all -SSLv2 -SSLv3 -TLSv1 -TLSv1.1"
-        },
-        "sshSettings": {
-            "class": "SSHD",
-            "allow": [
-                "all"
-            ],
-            "banner": "You are authorized to use this System for approved business purposes only.",
-            "inactivityTimeout": 123,
-            "ciphers": [
-                "aes128-cbc",
-                "aes192-ctr",
-                "aes256-ctr",
-                "arcfour128",
-                "aes128-ctr",
-                "arcfour256",
-                "arcfour"
-            ],
-            "loginGraceTime": 100,
-            "MACS": [
-                "hmac-sha2-256"
-            ],
-            "kexAlgorithms": [
-                "ecdh-sha2-nistp256",
-                "ecdh-sha2-nistp384",
-                "ecdh-sha2-nistp521"
-            ],
-            "maxAuthTries": 10,
-            "maxStartups": "5",
-            "protocol": 1
-        },
+        "hostname": "{{ inventory_hostname }}.{{domain_fqdn}}",
         "myLicense": {
             "class": "License",
             "licenseType": "licensePool",
